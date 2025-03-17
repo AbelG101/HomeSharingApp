@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using HomeSharingApp.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+<ul class="navbar-nav justify-content-between w-100 align-items-center">
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="d-flex align-items-center w-100 justify-content-center">
+        <form class="w-50" method="get" asp-controller="PropertyListing" asp-action="SearchPropertyListing">
+          <div class="p-1 bg-light rounded rounded-pill shadow-sm border border-primary-subtle">
+            <div class="input-group">
+              <input name="searchQuery" type="search" placeholder="Explore your next journey..." aria-describedby="button-addon1" class="form-control border-0 bg-light rounded-pill">
+              <div class="input-group-append">
+                <button id="button-addon1" type="submit" class="btn btn-link text-primary"><i class="bi bi-search text-dark"></i></button>
+              </div>
+            </div>
+          </div>
+        </form>
+    </div>
+    <div class="d-flex justify-content-end">
+        <div class="d-flex dropdown">
+                <a role="button" class="dropdown-toggle nav-link text-dark d-flex align-items-center pe-auto" data-bs-toggle="dropdown" aria-expanded="false">
+                    <li class="nav-item mx-2" style="align-self: center;">
+                        @if (UserManager.GetUserAsync(User).Result.ProfilePictureUrl != null)
+                        {
+                            <img style="width:40px;height:40px; object-fit:cover; border-radius:30px" src="@(UserManager.GetUserAsync(User).Result.ProfilePictureUrl)">
+                        }
+                    </li>
+                    @UserManager.GetUserName(User)
+                </a>
+              <ul class="dropdown-menu w-100">
+                <li><a id="manage" class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage"><i class="bi bi-person-fill mx-2"></i>Profile</a></li>
+                <li>
+                    <a class="dropdown-item" asp-area="" asp-controller="PropertyListing"
+                    asp-action="AddPropertyListing"><i class="bi bi-house-add-fill mx-2"></i>Add property</a>
+                </li>
+                <li class="nav-item">
+                    <a class="dropdown-item" asp-area="" asp-controller="Reservation"
+                    asp-action="Index"><i class="bi bi-luggage-fill mx-2"></i>My trips</a>
+                </li>
+                <li class="nav-item dropdown-item">
+                    <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/Identity/Account/Login">
+                        <button id="logout" type="submit" class="nav-link btn btn-link text-dark p-0 w-100 text-start"><i class="bi bi-power mx-2 text-danger fw-bold"></i>Logout</button>
+                    </form>
+                </li>
+              </ul>
+        </div>
+    </div>
+}
+</ul>

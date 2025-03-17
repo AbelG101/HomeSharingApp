@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\HomeSharingApp",
+    "\\HomeSharingApp\\Areas",
+    "\\HomeSharingApp\\Areas\\Identity",
+    "\\HomeSharingApp\\Areas\\Identity\\Data"
+  ],
+  "SelectedNode": "\\HomeSharingApp\\Program.cs",
+  "PreviewInSolutionExplorer": false
+}

@@ -1,0 +1,267 @@
+@model Reservation
+@using Microsoft.AspNetCore.Identity
+@using HomeSharingApp.Areas.Identity.Data
+@using Microsoft.AspNetCore.Http
+@{
+    var requestScheme = Context.Request.Scheme;
+}
+@{
+  Layout = "_Layout";
+}
+@inject UserManager<AppUser> UserManager
+<style>
+  .container {
+    padding-top: 5px;
+  }
+
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+
+  .image-item img:hover {
+    filter: brightness(75%);
+    transition: all 0.3s ease;
+  }
+
+  .property-details {
+    margin-bottom: 20px;
+  }
+
+  .sticky-card {
+    position: sticky;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #f5f5f5;
+    padding: 20px;
+    margin-top: 220px;
+    margin-left: 20px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border-radius: 15px;
+  }
+
+  .total-price {
+    margin-top: 20px;
+  }
+
+  .property-info {
+    gap: 25px;
+  }
+</style>
+
+<div class="container">
+  <div class="row">
+    <h1 class="mb-4">@Model.PropertyListing.PropertyName</h1>  
+    <div class="col-md-8">
+      <!-- Image Grid -->
+      <div class="image-grid">
+        @foreach (var imageUrl in Model.PropertyListing.PropertyListingImageUrls)
+
+        {
+          <div class="image-item">
+            <img src="@imageUrl" alt="Property Image">
+          </div>
+        }
+      </div>
+      <!-- Property Details -->
+      <div class="property-details">
+        <h3>@Model.PropertyListing.PropertyType in @Model.PropertyListing.Location</h3>
+            <h5><i>for a minimum of @Model.PropertyListing.MinimumReservationDays days</i></h5>
+        <ul class="d-inline-flex g-2 property-info">
+          <li class="text-secondary">@Model.PropertyListing.MaxNumberOfGuests guests max</li>
+          <li class="text-secondary">@Model.PropertyListing.NumberOfBedrooms @(Model.PropertyListing.NumberOfBedrooms > 1 ? "bedrooms" : "bedroom")</li>
+          <li class="text-secondary">@Model.PropertyListing.NumberOfBeds @(Model.PropertyListing.NumberOfBeds > 1 ? "beds" : "bed")</li>
+          <li class="text-secondary">@Model.PropertyListing.NumberOfBaths baths</li>
+        </ul>
+        <hr />
+        <div class="d-flex align-items-center">
+            <img style="width: 45px; height: 45px" class="rounded-circle mx-4" src="@Model.PropertyListing.Host.ProfilePictureUrl" />
+            <h6><b>Hosted by @Model.PropertyListing.Host.FirstName</b></h6>
+        </div>
+        <hr />
+        <p>@Model.PropertyListing.Description</p>
+        <div class="d-flex align-items-center">
+            <i class="bi bi-geo-alt fs-5 mx-4"></i>
+            <p class="mb-0">@Model.PropertyListing.Location</p>
+        </div>
+        @if (User.Identity.IsAuthenticated && User.Identity.Name == Model.PropertyListing.Host.UserName)
+        {
+            <div class="d-flex justify-content-end align-items-center">
+                @using (Html.BeginForm("Delete", "PropertyListing", new { id = Model.PropertyListing.PropertyId }))
+                {
+                    <button type="submit" value="Delete" class="btn btn-danger p-2 mb-2 mt-2" onclick="return confirm('Are you sure you want to delete this item?')">Delete <i class="bi bi-trash3 mx-1"></i></button>
+                }
+            <a class="mx-2 btn btn-success p-2" href="@Url.Action("Edit", new { id = Model.PropertyListing.PropertyId })">Edit<i class="bi bi-pencil-square mx-1"></i></a>
+            </div>
+        }
+        <!-- Other property details -->
+      </div>
+    </div>
+    <form id="form" class="col-md-4" method="POST" asp-controller="Reservation" asp-action="CheckoutPayment">
+      <div class="clear-sky-bg sticky-card border border-light-subtle">
+        <h4><strong>$@Model.PropertyListing.PricePerNight<sub>/night</sub></strong></h4>
+        <!-- Check-in and Check-out date inputs -->
+        <div class="form-group">
+          <label for="checkInDate">Check-in Date</label>
+          <input asp-for="CheckinDate" type="date" id="checkInDate" class="form-control"
+            value="@Model.PropertyListing.NextAvailableDate.ToString("yyyy-MM-dd")"
+            min="@Model.PropertyListing.NextAvailableDate.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="form-group">
+          <label for="checkoutDate">Check-out Date</label>
+          <input asp-for="CheckoutDate" type="date" id="checkoutDate" class="form-control" required>
+        </div>
+        <!-- Number of guests input -->
+        <div class="form-group">
+          <label for="numberOfGuests">Number of Guests</label>
+          <input asp-for="NumberOfGuests" type="number" id="numberOfGuests" class="form-control" min="1" value="1" max="@Model.PropertyListing.MaxNumberOfGuests" required>
+        </div>
+        <!-- Calculate total price -->
+        <div class="total-price">
+          <p>Total Price: $<span id="totalPrice" >0</span></p>
+          <p>Tax (15%): $<span id="taxAmount" >0</span></p>
+          <hr>
+          <p class="text-bold">Total after Taxes: $<span id="totalAfterTaxes" class="fw-bold">0</span></p>
+          <input id="final-price-amount" type="hidden" asp-for="TotalPrice" />
+          <input type="hidden" asp-for="GuestID" value="@UserManager.GetUserId(User)" />
+          <input type="hidden" asp-for="PropertyListingID" value="@Model.PropertyListing.PropertyId" />
+        </div>
+        <!-- Reserve button -->
+        <button type="submit" id="reserveButton" class="btn btn-primary w-100 p-2">Reserve</button>
+        <!-- Display delete and edit buttons -->
+      </div>
+    </form>
+    <hr class="my-2" />
+    @if (Model.PropertyListing.Reviews.Count < 1 )
+    {
+        <h3>No reviews on this property</h3>
+    } else
+    {
+        <div class="container">
+            @{ 
+                var sortedReviews = Model.PropertyListing.Reviews.OrderByDescending(r => r.ReviewDate).ToList();
+            }
+          <h3 class="mb-4"><i class="bi bi-star-fill"></i> @ViewBag.AvgRating · @Model.PropertyListing.Reviews.Count reviews</h3>
+          @foreach (var review in sortedReviews)
+          {
+            <div class="row col-md-4 p-2 mb-2">
+              <div class="d-flex align-items-center">
+                <img width="35px" src="@review.Guest.ProfilePictureUrl" alt="Author Image" class="img-fluid rounded-circle">
+                <div class="mx-4">
+                    <p class="my-0">@review.Guest.FirstName</p>
+                    <p class="my-0 text-black-50">@review.ReviewDate.ToString("MMM d, yyyy")</p>
+                </div>
+              </div>
+            <div class="mb-1">
+                @for (var i = 0; i < 5; i++)
+                {
+                <i class="bi @((i < review.Rating) ? "bi-star-fill" : "bi-star")"></i>
+                }
+            </div>
+            <div class="review-description">
+                @if (review.ReviewContent.Length > 100)
+                {
+                    <p class="mb-0">@review.ReviewContent.Substring(0, 100) <span class="threedots">...</span> <span class="full-desc" style="display:none">@review.ReviewContent.Substring(100)</span></p>
+                    <a class="show-hide-btn px-0" role="button" data-toggle="collapse" data-parent="#accordion" onclick="toggleDescription(this)">Show more</a>
+                }
+                else
+                {
+                    <p>@review.ReviewContent</p>
+                }
+            </div>
+            </div>
+          }
+        </div>
+    }
+  </div>
+</div>
+<script>
+  // Calculate total price
+  function calculateTotalPrice() {
+    const pricePerNight = @Model.PropertyListing.PricePerNight;
+    const checkInDate = new Date(document.getElementById('checkInDate').value);
+    const checkOutDate = new Date(document.getElementById('checkoutDate').value);
+    const numberOfGuests = parseInt(document.getElementById('numberOfGuests').value) || 1;
+
+    if (isNaN(checkOutDate)) {
+      return;
+    }
+
+    const totalDays = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+    const totalPrice = pricePerNight * totalDays;
+    const taxAmount = totalPrice * 0.15;
+    const totalAfterTaxes = totalPrice + taxAmount;
+
+    document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+    document.getElementById('taxAmount').textContent = taxAmount.toFixed(2);
+    document.getElementById('totalAfterTaxes').textContent = totalAfterTaxes.toFixed(2);
+    document.getElementById('final-price-amount').value = totalAfterTaxes.toFixed(2);
+  }
+
+  // Set default total price & min checkout date on page load
+  window.addEventListener('DOMContentLoaded', function () {
+    const pricePerNight = @Model.PropertyListing.PricePerNight;
+    const minimumReservationDays = @Model.PropertyListing.MinimumReservationDays;
+    const totalPrice = pricePerNight * minimumReservationDays;
+    const taxAmount = totalPrice * 0.15;
+    const totalAfterTaxes = totalPrice + taxAmount;
+
+    handleMinCheckoutDate();
+
+    document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
+    document.getElementById('taxAmount').textContent = taxAmount.toFixed(2);
+    document.getElementById('totalAfterTaxes').textContent = totalAfterTaxes.toFixed(2);
+  });
+
+  function handleMinCheckoutDate() {
+    const minimumReservationDays = @Model.PropertyListing.MinimumReservationDays;
+    const checkInDate = new Date(document.getElementById('checkInDate').value);
+    const checkOutDateInput = document.getElementById('checkoutDate');
+
+    // Calculate the minimum check-out date
+    const minimumCheckOutDate = new Date(checkInDate.getTime() + minimumReservationDays * 24 * 60 * 60 * 1000);
+    const minimumCheckOutDateString = minimumCheckOutDate.toISOString().split('T')[0];
+
+    // Set the minimum check-out date on the check-out date input
+    checkOutDateInput.min = minimumCheckOutDateString;
+
+    // Reset the check-out date if it is before the minimum check-out date
+    if (checkOutDateInput.value < minimumCheckOutDateString) {
+      checkOutDateInput.value = minimumCheckOutDateString;
+    }
+
+    calculateTotalPrice();
+  }
+
+  // Show more / hide text
+    function toggleDescription(button) {
+        var $button = $(button);
+        var $reviewDescription = $button.closest('.review-description');
+        var $threedots = $reviewDescription.find('.threedots');
+        var $fullDesc = $reviewDescription.find('.full-desc');
+
+        if ($threedots.is(':hidden')) {
+          $threedots.show();
+          $fullDesc.hide();
+          $button.text('Show more');
+        } else {
+          $threedots.hide();
+          $fullDesc.show();
+          $button.text('Hide');
+        }
+      }
+
+  // Event listener for checkin date input changes
+  document.getElementById('checkInDate').addEventListener('change', handleMinCheckoutDate);
+
+  document.getElementById('checkoutDate').addEventListener('change', calculateTotalPrice);
+</script>

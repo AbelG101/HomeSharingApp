@@ -1,0 +1,59 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Profile";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
+            <div class="row">
+                <div class="col-md-6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group my-2">
+                        <label asp-for="Input.FirstName"></label>
+                        <input asp-for="Input.FirstName" class="form-control" />
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group my-2">
+                        <label asp-for="Input.LastName"></label>
+                        <input asp-for="Input.LastName" class="form-control" />
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating my-2">
+                        <input asp-for="Username" class="form-control" disabled />
+                        <label asp-for="Username" class="form-label"></label>
+                    </div>
+                    <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+                </div>
+                <div class="col-md-6">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Input.ProfilePictureUrl" class="mb-2 w-100" >Current profile</label>
+                        @if (Model.Input.ProfilePictureUrl != null)
+                        {
+                            <img id="profilePicture" style="width:350px;height:350px; object-fit:cover" src="@(Model.Input.ProfilePictureUrl)">
+                        }
+                        else
+                        {
+                            <img id="profilePicture" style="width:350px;height:350px; object-fit:cover" src="">
+                        }
+                        <input
+                               accept=".png,.jpg,.jpeg,.gif,.tif"
+                               asp-for="Input.ProfilePic"
+                               class="form-control btn my-4 w-auto"
+                               onchange="document.getElementById('profilePicture').src = window.URL.createObjectURL(this.files[0])" />
+                        <span asp-validation-for="Input.ProfilePictureUrl" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

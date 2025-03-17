@@ -1,0 +1,77 @@
+﻿@model IEnumerable<HomeSharingApp.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1 class="my-4">Trips</h1>
+
+@if (!Model.Any())
+{
+    <h3>No trips booked...yet!</h3>
+    <p>Time to dust off your bags and start planning your next adventure</p>
+    <a class="btn btn-outline-dark" data-mdb-ripple-color="dark" asp-controller="PropertyListing" asp-action="GetPropertyListings">Start looking</a>
+} else
+{
+    <table class="table table-striped">
+    <thead class="bg-light">
+        <tr>
+            <th>
+                Hosted by
+            </th>
+            <th>
+                Property name
+            </th>
+            <th>
+                Checkin at
+            </th>
+            <th>
+                Checkout at
+            </th>
+            <th>
+                Price
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+            <tr>
+                <td>
+                    <div class="d-flex align-items-center">
+                      <img
+                          src="@item.PropertyListing.Host.ProfilePictureUrl"
+                          alt=""
+                          style="width: 45px; height: 45px"
+                          class="rounded-circle"
+                          />
+                      <div class="ms-3">
+                        <p class="fw-bold mb-1">@item.PropertyListing.Host.FirstName</p>
+                        <p class="text-muted mb-0">@item.PropertyListing.Host.Email</p>
+                      </div>
+                    </div>
+                </td>
+                <td>
+                    @item.PropertyListing.PropertyName
+                </td>
+                <td>
+                    @item.CheckinDate.ToString("MMM d, yyyy")
+                </td>
+                <td>
+                    @item.CheckoutDate.ToString("MMM d, yyyy")
+                </td>
+                <td>
+                    $@item.TotalPrice
+                </td>
+                <td>
+                    @*<a asp-action="Edit" asp-route-id="@item.ReservationID">Edit</a> |*@
+                    <a class="btn btn-outline-dark" data-mdb-ripple-color="dark" asp-action="Details" asp-route-id="@item.ReservationID">Details</a>
+                    @*<a asp-action="Delete" asp-route-id="@item.ReservationID">Delete</a>*@
+                </td>
+            </tr>
+    }
+        </tbody>
+    </table>
+}
+

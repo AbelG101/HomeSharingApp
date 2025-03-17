@@ -1,0 +1,89 @@
+@model List<PropertyListing>
+@{
+  Layout = "_Layout";
+}
+
+<style>
+  .image-container {
+    width: 300px;
+    height: 300px;
+  }
+
+  .image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+  }
+  a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .property-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .property-card:hover {
+    transform: scale(1.01);
+  }
+
+  a:hover {
+      color: #000;
+  }
+</style>
+
+<div class="row">
+  @foreach (var propertyListing in Model)
+  {
+    <div class="col-lg-4 col-md-6 col-sm-12 mb-4 property-card">
+      <a href="@Url.Action("Detail", "PropertyListing", new { id = @propertyListing.PropertyId })" class="card-link text-dark">
+        <div class="card property-card">
+          @{
+            var carouselId = $"carouselExample_{propertyListing.PropertyId}";
+          }
+          <div id="@carouselId" class="carousel slide" data-bs-interval="false" data-bs-ride="carousel">
+            <!-- Carousel Indicators -->
+            <ol class="carousel-indicators">
+              @for (int i = 0; i < propertyListing.PropertyListingImageUrls.Count; i++)
+              {
+                <li data-bs-target="#@carouselId" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")"></li>
+              }
+            </ol>
+
+            <!-- Carousel Slides -->
+            <div class="carousel-inner">
+              @foreach (var imageUrl in propertyListing.PropertyListingImageUrls)
+              {
+                <div class="carousel-item @(imageUrl == propertyListing.PropertyListingImageUrls.First() ? "active" : "")">
+                  <img class="d-block w-100 image-container" src="@imageUrl" alt="Property Image">
+                </div>
+              }
+            </div>
+
+            <!-- Carousel Controls -->
+            <a class="carousel-control-prev" href="#@carouselId" role="button" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#@carouselId" role="button" data-bs-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="visually-hidden">Next</span>
+            </a>
+          </div>
+          <a href="@Url.Action("Detail", "PropertyListing", new { id = propertyListing.PropertyId })" class="card-link">
+            <div class="card-body clear-sky-bg">
+              <h5 class="card-title">@propertyListing.PropertyName</h5>
+              @{
+                DateTime endDate = propertyListing.NextAvailableDate.AddDays(propertyListing.MinimumReservationDays - 1);
+                string dateRange = $"{propertyListing.NextAvailableDate:MMM d} - {endDate:MMM d}";
+              }
+              <p class="card-text text-secondary mb-0">@dateRange</p>
+              <p class="card-text"><b>$@propertyListing.PricePerNight</b><sub>/night</sub></p>
+            </div>
+          </a>
+        </div>
+      </a>
+    </div>
+  }
+</div>

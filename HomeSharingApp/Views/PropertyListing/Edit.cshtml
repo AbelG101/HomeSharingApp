@@ -1,0 +1,102 @@
+﻿@model HomeSharingApp.Models.PropertyListing
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>PropertyListing</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" asp-for="PropertyId" />
+            <input type="hidden" asp-for="HostID" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="PropertyName" class="control-label"></label>
+                <input asp-for="PropertyName" class="form-control" />
+                <span asp-validation-for="PropertyName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label asp-for="PropertyType">Property Type</label>
+              <select asp-for="PropertyType" class="form-select">
+                <option value="House" selected="@(Model.PropertyType == "House" ? "selected" : null)">House</option>
+                <option value="Apartment" selected="@(Model.PropertyType == "Apartment" ? "selected" : null)">Apartment</option>
+                <option value="Condo" selected="@(Model.PropertyType == "Condo" ? "Selected" : null)">Condo</option>
+                <option value="Townhouse" selected="@(Model.PropertyType == "Townhouse" ? "selected" : null)">Townhouse</option>
+                <option value="Villa" selected="@(Model.PropertyType == "Villa" ? "selected" : null)">Villa</option>
+                <option value="Cabin" selected="@(Model.PropertyType == "Cabin" ? "selected" : null)">Cabin</option>
+                <!-- Add more property types as needed -->
+              </select>
+              <div class="invalid-feedback">
+                <span asp-validation-for="PropertyType" class="text-danger"></span>
+              </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Location" class="control-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PricePerNight" class="control-label"></label>
+                <input type="number" min="1" asp-for="PricePerNight" class="form-control" />
+                <span asp-validation-for="PricePerNight" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NextAvailableDate" class="control-label"></label>
+                <input asp-for="NextAvailableDate" class="form-control" />
+                <span asp-validation-for="NextAvailableDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfBedrooms" class="control-label"></label>
+                <input asp-for="NumberOfBedrooms" class="form-control" />
+                <span asp-validation-for="NumberOfBedrooms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfBeds" class="control-label"></label>
+                <input asp-for="NumberOfBeds" class="form-control" />
+                <span asp-validation-for="NumberOfBeds" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="NumberOfBaths" class="control-label"></label>
+                <input asp-for="NumberOfBaths" class="form-control" />
+                <span asp-validation-for="NumberOfBaths" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxNumberOfGuests" class="control-label"></label>
+                <input asp-for="MaxNumberOfGuests" class="form-control" />
+                <span asp-validation-for="MaxNumberOfGuests" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MinimumReservationDays" class="control-label"></label>
+                <input asp-for="MinimumReservationDays" class="form-control" />
+                <span asp-validation-for="MinimumReservationDays" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" cols="30" rows="10"
+          required></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PropertyListingGallery" class="control-label"></label>
+                <input asp-for="PropertyListingGallery" class="form-control" />
+                <span asp-validation-for="PropertyListingGallery" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="GetPropertyListings">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,48 @@
+@model PropertyListing
+@{
+  Layout = "_Layout";
+}
+<h2>Property Listings</h2>
+<div>
+  <a href="@Url.Action("Detail", "Property", new { id = Model.PropertyId })">
+    <div id="carouselExample" class="carousel slide w-20" data-bs-interval="false" data-bs-touch="true">
+      <!-- Carousel Indicators -->
+      <div class="carousel-indicators">
+        @for (int i = 0; i < Model.PropertyListingImageUrls.Count; i++)
+        {
+          <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="@i"
+            class="@(i==0 ? "active" : "")" aria-current="(@i==0 ? true : "")" aria-label="Slide @(i + 1)"></button>
+        }
+      </div>
+
+      <!-- Carousel Slides -->
+      <div class="carousel-inner">
+        @foreach (var imageUrl in Model.PropertyListingImageUrls)
+        {
+          <div class="carousel-item @(imageUrl == Model.PropertyListingImageUrls.First() ? "active" : "")">
+            <img class="d-block w-100" src="@imageUrl" alt="Property Image">
+          </div>
+        }
+      </div>
+
+      <!-- Carousel Controls -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+    <div>
+      @Model.PropertyName
+    </div>
+    @{
+      DateTime endDate = Model.NextAvailableDate.AddDays(Model.MinimumReservationDays - 1);
+      string dateRange = $"{Model.NextAvailableDate:MMM d} - {endDate:MMM d}";
+    }
+    <p class="text-secondary mb-0">@dateRange</p>
+    <p><b>$@Model.PricePerNight</b><sub>/night</sub></p>
+  </a>
+</div>

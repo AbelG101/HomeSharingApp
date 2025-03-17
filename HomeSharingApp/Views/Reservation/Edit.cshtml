@@ -1,0 +1,46 @@
+﻿@model HomeSharingApp.Models.Reservation
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Add more guests</h1>
+
+<h4>Reservation</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Reservation" asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ReservationID" />
+            <input type="hidden" asp-for="GuestID" />
+            <input type="hidden" asp-for="PropertyListingID" />
+            <input type="hidden" asp-for="TotalPrice" />
+            <div class="form-group">
+                <label asp-for="NumberOfGuests" class="control-label">Number of guests</label>
+                <input min="1" max="@Model.PropertyListing.MaxNumberOfGuests" asp-for="NumberOfGuests" class="form-control my-2" required />
+                <span asp-validation-for="NumberOfGuests" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="CheckinDate" class="form-control" />
+                <span asp-validation-for="CheckinDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="hidden" asp-for="CheckoutDate" class="form-control" />
+                <span asp-validation-for="CheckoutDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
